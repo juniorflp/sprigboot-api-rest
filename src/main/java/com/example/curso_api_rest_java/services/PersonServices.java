@@ -1,6 +1,8 @@
 package com.example.curso_api_rest_java.services;
 
+import com.example.curso_api_rest_java.dataVoV1.PersonVO;
 import com.example.curso_api_rest_java.exceptions.ResourceNotFoundException;
+import com.example.curso_api_rest_java.mapper.MyMapper;
 import com.example.curso_api_rest_java.model.Person;
 import com.example.curso_api_rest_java.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,28 +18,32 @@ public class PersonServices {
     PersonRepository repository;
     private Logger logger = Logger.getLogger(PersonServices.class.getName());
 
-    public List<Person> findAll() {
+    public List<PersonVO> findAll() {
         logger.info("finding all person...");
 
-        return repository.findAll();
+        return MyMapper.parseListObject(repository.findAll(), PersonVO.class);
     }
 
-    public Person findById(Long id) {
+    public PersonVO findById(Long id) {
 
         logger.info("finding one person...");
 
 
-        return repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No Records found for this id"));
+        var entity =  repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No Records found for this id"));
+        return MyMapper.parseObject(entity, PersonVO.class);
     }
 
-    public Person create(Person person) {
+    public PersonVO create(PersonVO person) {
 
         logger.info("create one person...");
 
-        return repository.save(person);
+        var entity = MyMapper.parseObject(person, Person.class);
+        var vo = MyMapper.parseObject(repository.save(entity), PersonVO.class);
+
+        return vo;
     }
 
-    public Person update(Long id, Person person) {
+    public PersonVO update(Long id, PersonVO person) {
 
         logger.info("update one person...");
 
@@ -49,8 +55,9 @@ public class PersonServices {
         entity.setAddress(person.getAddress());
         entity.setGender(person.getGender());
 
-        // Salva a entidade atualizada
-        return repository.save(entity);
+        var vo = MyMapper.parseObject(repository.save(entity), PersonVO.class);
+
+        return vo;
     }
 
     public void delete(Long id) {
