@@ -1,7 +1,7 @@
 package com.example.curso_api_rest_java.controllers;
 
-import com.example.curso_api_rest_java.dataVoV1.PersonVO;
-import com.example.curso_api_rest_java.services.PersonServices;
+import com.example.curso_api_rest_java.dataVoV1.BookVO;
+import com.example.curso_api_rest_java.services.BookServices;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -11,21 +11,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/person/v1")
-@Tag(name = "People", description = "Endpoints for Managing people")
-public class PersonController {
+@RequestMapping("api/book/v1")
+@Tag(name = "Book", description = "Endpoints for Managing book")
+public class BookController {
 
     @Autowired
-    private PersonServices service;
+    private BookServices service;
+
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<PersonVO> findAll() {
+    public List<BookVO> findAll() {
         return service.findAll();
     }
 
     @GetMapping(value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public PersonVO findById(
+    public BookVO findById(
             @PathVariable(value = "id") Long id) {
         return service.findById(id);
     }
@@ -33,8 +34,8 @@ public class PersonController {
     @PostMapping(
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public PersonVO create(@RequestBody PersonVO person) {
-        return service.create(person);
+    public BookVO create(@RequestBody BookVO book) {
+        return service.create(book);
     }
 
 
@@ -42,8 +43,8 @@ public class PersonController {
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public PersonVO update(@PathVariable(value = "id") Long id, @RequestBody PersonVO person) {
-        return service.update(id, person);
+    public BookVO update(@PathVariable(value = "id") Long id, @RequestBody BookVO book) {
+        return service.update(id, book);
     }
 
     @DeleteMapping(value = "/{id}")

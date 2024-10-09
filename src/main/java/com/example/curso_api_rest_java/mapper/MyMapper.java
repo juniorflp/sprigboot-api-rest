@@ -1,6 +1,8 @@
 package com.example.curso_api_rest_java.mapper;
 
+import com.example.curso_api_rest_java.dataVoV1.BookVO;
 import com.example.curso_api_rest_java.dataVoV1.PersonVO;
+import com.example.curso_api_rest_java.model.Book;
 import com.example.curso_api_rest_java.model.Person;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
@@ -22,6 +24,24 @@ public class MyMapper {
 
         // change id for key
         mapper.addMappings(new PropertyMap<Person, PersonVO>() {
+            @Override
+            protected void configure() {
+                map().setKey(source.getId());
+            }
+        });
+    }
+
+    static {
+        // change key for id
+        mapper.addMappings(new PropertyMap<BookVO, Book>() {
+            @Override
+            protected void configure() {
+                map().setId(source.getKey());
+            }
+        });
+
+        // change id for key
+        mapper.addMappings(new PropertyMap<Book, BookVO>() {
             @Override
             protected void configure() {
                 map().setKey(source.getId());
