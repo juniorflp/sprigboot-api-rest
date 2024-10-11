@@ -1,32 +1,33 @@
-package com.example.curso_api_rest_java.dataVoV1;
+package com.example.curso_api_rest_java.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.Link;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-@JsonPropertyOrder({"id","firstName","lastName","address","gender"})
-public class PersonVO extends RepresentationModel<PersonVO> implements Serializable {
+public class PersonDTO {
 
-    @JsonProperty("id")
-    private Long key;
+    private Long id;
     private String firstName;
     private String lastName;
     private String address;
     private String gender;
 
-    public PersonVO() {
+    @JsonProperty("_links")
+    private List<Link> links = new ArrayList<>();
+
+    // Construtor padrão
+    public PersonDTO() {
     }
 
-    public Long getKey() {
-        return key;
+    public Long getId() {
+        return id;
     }
 
-    public void setKey(Long key) {
-        this.key = key;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -61,17 +62,24 @@ public class PersonVO extends RepresentationModel<PersonVO> implements Serializa
         this.gender = gender;
     }
 
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void addLink(Link link) {
+        this.links.add(link);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        PersonVO personVO = (PersonVO) o;
-        return Objects.equals(key, personVO.key) && Objects.equals(firstName, personVO.firstName) && Objects.equals(lastName, personVO.lastName) && Objects.equals(address, personVO.address) && Objects.equals(gender, personVO.gender);
+        PersonDTO personDTO = (PersonDTO) o;
+        return Objects.equals(id, personDTO.id) && Objects.equals(firstName, personDTO.firstName) && Objects.equals(lastName, personDTO.lastName) && Objects.equals(address, personDTO.address) && Objects.equals(gender, personDTO.gender) && Objects.equals(links, personDTO.links);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), key, firstName, lastName, address, gender);
+        return Objects.hash(id, firstName, lastName, address, gender, links);
     }
 }

@@ -1,84 +1,93 @@
 package com.example.curso_api_rest_java.services;
 
 import com.example.curso_api_rest_java.controllers.BookController;
-import com.example.curso_api_rest_java.dataVoV1.BookVO;
+import com.example.curso_api_rest_java.dto.BookDTO;
 import com.example.curso_api_rest_java.exceptions.ResourceNotFoundException;
-import com.example.curso_api_rest_java.mapper.MyMapper;
 import com.example.curso_api_rest_java.model.Book;
 import com.example.curso_api_rest_java.repositories.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @Service
 public class BookServices {
 
     @Autowired
-
     BookRepository repository;
-    private Logger logger = Logger.getLogger(BookServices.class.getName());
 
-    public List<BookVO> findAll() {
-        logger.info("finding all books...");
-
-        var books = MyMapper.parseListObject(repository.findAll(), BookVO.class);
-        books.stream().forEach(p -> p.add(linkTo(methodOn(BookController.class).findById(p.getKey())).withSelfRel()));
-        return books;
+    public List<BookDTO> findAll() {
+        return repository.findAll()
+                .stream()
+                .map(book -> this.toBookDTO(book))
+                .collect(Collectors.toList());
     }
 
-    public BookVO findById(Long id) {
-
-        logger.info("finding one book...");
-
-
-        var entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No Records found for this id"));
-        var vo = MyMapper.parseObject(entity, BookVO.class);
-        vo.add(linkTo(methodOn(BookController.class).findById(id)).withSelfRel());
-        return vo;
-    }
-
-    public BookVO create(BookVO book) {
-
-        logger.info("create one book...");
-
-        var entity = MyMapper.parseObject(book, Book.class); // Mapeando DTO para entidade
-        entity = repository.save(entity); // Salvando a entidade no banco de dados
-        var vo = MyMapper.parseObject(entity, BookVO.class);
-        vo.add(linkTo(methodOn(BookController.class).findById(vo.getKey())).withSelfRel());
-        return vo;
-    }
-
-    public BookVO update(Long id, BookVO book) {
-
-        logger.info("update one book...");
-
+    public BookDTO findById(Long id) {
         var entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No Records found for this id"));
 
-        entity.setTitle(book.getTitle());
-        entity.setAuthor(book.getAuthor());
-        entity.setLaunchDate(book.getLaunchDate());
-        entity.setPrice(book.getPrice());
+        return toBookDTO(entity);
+    }
 
-        var vo = MyMapper.parseObject(repository.save(entity), BookVO.class);
-        vo.add(linkTo(methodOn(BookController.class).findById(vo.getKey())).withSelfRel());
-        return vo;
+    public BookDTO create(BookDTO bookDTO) {
+        var entity = toBookEntity(bookDTO);
+        entity = repository.save(entity);
 
+        return toBookDTO(entity);
+    }
+
+    public BookDTO update(Long id, BookDTO bookDTO) {
+        var entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No Records found for this id"));
+
+        entity.setTitle(bookDTO.getTitle());
+        entity.setAuthor(bookDTO.getAuthor());
+        entity.setLaunchDate(bookDTO.getLaunchDate());
+        entity.setPrice(bookDTO.getPrice());
+
+        entity = repository.save(entity);
+        return toBookDTO(entity);
     }
 
     public void delete(Long id) {
-
-        logger.info("delete one book...");
-
-        var entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No Records found for this id"));
+        var entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No Records found for this id"));
 
         repository.delete(entity);
     }
 
+    // Método auxiliar para converter Book em BookDTO e adicionar links
+    private BookDTO toBookDTO(Book book) {
+        BookDTO dto = new BookDTO();
+        dto.setId(book.getId());
+        dto.setTitle(book.getTitle());
+        dto.setAuthor(book.getAuthor());
+        dto.setLaunchDate(book.getLaunchDate());
+        dto.setPrice(book.getPrice());
 
+        // Adiciona links HATEOAS
+        dto.addLink(linkTo(methodOn(BookController.class).findById(book.getId())).withSelfRel());
+
+
+        return dto;
+    }
+
+    // Método auxiliar para converter BookDTO em Book
+    private Book toBookEntity(BookDTO bookDTO) {
+        Book book = new Book();
+        // Não definir o ID ao criar um novo livro, pois ele é gerado automaticamente
+        if (bookDTO.getId() != null) {
+            book.setId(bookDTO.getId());
+        }
+        book.setTitle(bookDTO.getTitle());
+        book.setAuthor(bookDTO.getAuthor());
+        book.setLaunchDate(bookDTO.getLaunchDate());
+        book.setPrice(bookDTO.getPrice());
+        return book;
+    }
 }
