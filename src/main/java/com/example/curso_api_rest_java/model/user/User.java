@@ -24,6 +24,12 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    private String firstName;
+
+    private String lastName;
+
+    private Boolean isActive = true;
+
 
     public User() {
     }
@@ -32,6 +38,15 @@ public class User implements UserDetails {
         this.login = login;
         this.password = password;
         this.role = role;
+        this.isActive = true;
+    }
+    public User(String login, String password, UserRole role, String firstName, String lastName, Boolean isActive) {
+        this.login = login;
+        this.password = password;
+        this.role = role;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.isActive = (isActive != null) ? isActive : true;
     }
 
 
@@ -102,16 +117,40 @@ public class User implements UserDetails {
         this.role = role;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(login, user.login) && Objects.equals(password, user.password) && role == user.role;
+        return Objects.equals(id, user.id) && Objects.equals(login, user.login) && Objects.equals(password, user.password) && role == user.role && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(isActive, user.isActive);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, login, password, role);
+        return Objects.hash(id, login, password, role, firstName, lastName, isActive);
     }
 }
