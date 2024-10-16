@@ -15,6 +15,7 @@ public class BookDTO {
     private String author;
     private Date launchDate;
     private Double price;
+    private String imageUrl;
 
     @JsonProperty("_links")
     private List<Link> links = new ArrayList<>();
@@ -71,17 +72,24 @@ public class BookDTO {
         this.links.add(link);
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BookDTO bookDTO = (BookDTO) o;
-        return Objects.equals(id, bookDTO.id) && Objects.equals(title, bookDTO.title) && Objects.equals(author, bookDTO.author) && Objects.equals(launchDate, bookDTO.launchDate) && Objects.equals(price, bookDTO.price) && Objects.equals(links, bookDTO.links);
+        return Objects.equals(id, bookDTO.id) && Objects.equals(title, bookDTO.title) && Objects.equals(author, bookDTO.author) && Objects.equals(launchDate, bookDTO.launchDate) && Objects.equals(price, bookDTO.price) && Objects.equals(imageUrl, bookDTO.imageUrl) && Objects.equals(links, bookDTO.links);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, author, launchDate, price, links);
+        return Objects.hash(id, title, author, launchDate, price, imageUrl, links);
     }
 }

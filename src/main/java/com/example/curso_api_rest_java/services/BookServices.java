@@ -6,13 +6,13 @@ import com.example.curso_api_rest_java.exceptions.ResourceNotFoundException;
 import com.example.curso_api_rest_java.model.Book;
 import com.example.curso_api_rest_java.repositories.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class BookServices {
@@ -61,6 +61,18 @@ public class BookServices {
         repository.delete(entity);
     }
 
+
+    public BookDTO updateImageUrl(Long id, String imagePath) {
+        var entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No Records found for this id"));
+
+        entity.setImageUrl(imagePath);
+        entity = repository.save(entity);
+
+        return toBookDTO(entity);
+    }
+
+
     // Método auxiliar para converter Book em BookDTO e adicionar links
     private BookDTO toBookDTO(Book book) {
         BookDTO dto = new BookDTO();
@@ -69,6 +81,7 @@ public class BookServices {
         dto.setAuthor(book.getAuthor());
         dto.setLaunchDate(book.getLaunchDate());
         dto.setPrice(book.getPrice());
+        dto.setImageUrl(book.getImageUrl());
 
         // Adiciona links HATEOAS
         dto.addLink(linkTo(methodOn(BookController.class).findById(book.getId())).withSelfRel());
@@ -88,6 +101,7 @@ public class BookServices {
         book.setAuthor(bookDTO.getAuthor());
         book.setLaunchDate(bookDTO.getLaunchDate());
         book.setPrice(bookDTO.getPrice());
+        book.setImageUrl(bookDTO.getImageUrl());
         return book;
     }
 }

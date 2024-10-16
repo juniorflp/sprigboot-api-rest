@@ -22,6 +22,8 @@ public class Book implements Serializable {
     private Date launchDate;
     @Column(nullable = false)
     private Double price;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     public Book() {
     }
@@ -66,16 +68,24 @@ public class Book implements Serializable {
         this.price = price;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return Objects.equals(id, book.id) && Objects.equals(title, book.title) && Objects.equals(author, book.author) && Objects.equals(launchDate, book.launchDate) && Objects.equals(price, book.price);
+        return Objects.equals(id, book.id) && Objects.equals(title, book.title) && Objects.equals(author, book.author) && Objects.equals(launchDate, book.launchDate) && Objects.equals(price, book.price) && Objects.equals(imageUrl, book.imageUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, author, launchDate, price);
+        return Objects.hash(id, title, author, launchDate, price, imageUrl);
     }
 }
