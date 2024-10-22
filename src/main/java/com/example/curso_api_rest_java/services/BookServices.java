@@ -5,10 +5,14 @@ import com.example.curso_api_rest_java.dto.BookDTO;
 import com.example.curso_api_rest_java.exceptions.ResourceNotFoundException;
 import com.example.curso_api_rest_java.model.Book;
 import com.example.curso_api_rest_java.repositories.BookRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -70,6 +74,26 @@ public class BookServices {
         entity = repository.save(entity);
 
         return toBookDTO(entity);
+    }
+
+    public BookDTO updatePartial(Long id, Map<String, Object> updates){
+        Book existingBook = repository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Book not found"));
+
+        updates.forEach((key, value)->{
+            Field field = ReflectionUtils.findField(Book.class, key);
+            if(field != null){
+                field.setAccessible(true);
+                ReflectionUtils.setField(field, existingBook, value);
+            }else{
+                throw new IllegalArgumentException("Update not allowed for field: "+ key);
+            }
+        });
+
+        Book updatedBook = repository.save(existingBook);
+
+        return toBookDTO(updatedBook);
+
     }
 
 
