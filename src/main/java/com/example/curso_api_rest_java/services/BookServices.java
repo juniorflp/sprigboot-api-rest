@@ -5,15 +5,14 @@ import com.example.curso_api_rest_java.dto.BookDTO;
 import com.example.curso_api_rest_java.exceptions.ResourceNotFoundException;
 import com.example.curso_api_rest_java.model.Book;
 import com.example.curso_api_rest_java.repositories.BookRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -24,11 +23,14 @@ public class BookServices {
     @Autowired
     BookRepository repository;
 
-    public List<BookDTO> findAll() {
-        return repository.findAll()
-                .stream()
-                .map(book -> this.toBookDTO(book))
-                .collect(Collectors.toList());
+    public Page<BookDTO> findAll(String search, Pageable pageable) {
+        if (search != null && !search.isEmpty()) {
+            return repository.findByTitleContainingIgnoreCase(search, pageable)
+                    .map(this::toBookDTO);
+        } else {
+            return repository.findAll(pageable)
+                    .map(this::toBookDTO);
+        }
     }
 
     public BookDTO findById(Long id) {
@@ -76,17 +78,17 @@ public class BookServices {
         return toBookDTO(entity);
     }
 
-    public BookDTO updatePartial(Long id, Map<String, Object> updates){
+    public BookDTO updatePartial(Long id, Map<String, Object> updates) {
         Book existingBook = repository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Book not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found"));
 
-        updates.forEach((key, value)->{
+        updates.forEach((key, value) -> {
             Field field = ReflectionUtils.findField(Book.class, key);
-            if(field != null){
+            if (field != null) {
                 field.setAccessible(true);
                 ReflectionUtils.setField(field, existingBook, value);
-            }else{
-                throw new IllegalArgumentException("Update not allowed for field: "+ key);
+            } else {
+                throw new IllegalArgumentException("Update not allowed for field: " + key);
             }
         });
 
